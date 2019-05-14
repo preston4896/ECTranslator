@@ -61,7 +61,7 @@ function talkToGoogle(input, resInput) {
                 resInput.json(
                     {
                         "English": input,
-                        "Chinese-Traditional": APIresBody.data.translations[0].translatedText
+                        "ChineseTraditional": APIresBody.data.translations[0].translatedText
                     }
                 )
             }
