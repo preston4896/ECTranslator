@@ -1,7 +1,7 @@
 "strict mode"
 
 const express = require('express')
-const port = 53754 // you need to put your port number here
+const port = 53754
 
 function talkToGoogle(input, resInput) {
     const APIrequest = require('request');
