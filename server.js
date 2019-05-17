@@ -1,8 +1,15 @@
-"strict mode"
+"strict mode";
 
-const express = require('express')
-const port = 53754
+const express = require('express');
+const port = 53754;
 
+// Initialize database.
+const sqlite3 = require("sqlite3").verbose();
+const fs = require("fs");
+const dbFileName = "ECUsers.db";
+const db = new sqlite3.Database(dbFileName);
+
+// The API request functions that allows our server to commmunicate directly with Google Cloud.
 function talkToGoogle(input, resInput) {
     const APIrequest = require('request');
     const http = require('http');
@@ -11,7 +18,6 @@ function talkToGoogle(input, resInput) {
 
     // An object containing the data expressing the query to the
     // translate API. 
-    // Below, gets stringified and put into the body of an HTTP PUT request.
     let requestObject = 
     {
         "source": "en",
@@ -69,13 +75,43 @@ function talkToGoogle(input, resInput) {
      } // end callback function
 }
 
-// The handler takes in query and returns json as output.
+// Initialize table in our server.
+function initDBTable() {
+    function tableCreationCallback(err) {
+        if (err) {
+        console.log("Table creation error",err);
+        } else {
+        console.log("Database created");
+        db.close();
+        }
+    }
+
+    const cmdStr = 'CREATE TABLE Users (UserID INTEGER PRIMARY KEY, Eng TEXT, Cn TEXT, Shown INT, Correct INT)';
+    db.run(cmdStr, tableCreationCallback);
+}
+
+// Store translation into table in database.
+function storeEC(eng, cn) {
+    function insertionCallback(err) {
+        if (err) {
+        console.log("Data insertion error",err);
+        } else {
+        console.log("Data inserted");
+        db.close();
+        }
+    }
+    db.open(dbFileName); //does not work.
+    const cmdStr = 'INSERT INTO Users (Eng, Cn, Shown, Correct) VALUES (@0,@1,0,0)';
+    db.run(cmdStr, eng, cn, insertionCallback);
+}
+
+// This handler takes in the translation query and makes the API Request.
 function translateHandler(req, res, next) {
     let url = req.url;
-    let qObj = req.query;
-    console.log(qObj);
-    if (qObj.english != undefined) {
-        talkToGoogle(qObj.english, res);
+    let Obj = req.query;
+    console.log(Obj);
+    if (Obj.english != undefined) {
+        talkToGoogle(Obj.english, res);
     }
     else {
         console.log("I don't understand this query, next query please!");
@@ -83,6 +119,22 @@ function translateHandler(req, res, next) {
     }
 }
 
+// This handler stores English and Chinese texts into the database.
+function storeHandler(req, res, next) {
+    let url = req.url;
+    let Obj = req.query;
+    console.log(Obj);
+    if ((Obj.english != undefined) && (Obj.chinese != undefined)) {
+        storeEC(Obj.english, Obj.chinese);
+        res.send("Data stored successfully in the database.");
+    }
+    else {
+        console.log("I don't understand this query, next query please!");
+        next();
+    }
+}
+
+// Returns a 404 error if the HTML file requested can not be found and all queires are invalid.
 function fileNotFound(req, res) {
     let url = req.url;
     res.type('text/plain');
@@ -94,6 +146,7 @@ function fileNotFound(req, res) {
 const app = express()
 app.use(express.static('../public'));  // can I find a static file in the public sub-directory? 
 app.get('/translate', translateHandler );   // if not, is it a valid query for translation?
+app.get('/store', storeHandler); // store query handler.
 app.use( fileNotFound );            // otherwise not found
-app.listen(port, function (){console.log('Listening...');} )
- 
+app.listen(port, function (){console.log('Listening...');} );
+initDBTable();
