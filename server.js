@@ -81,12 +81,13 @@ function initDBTable() {
         if (err) {
         console.log("Table creation error",err);
         } else {
-        console.log("Database created");
+        console.log("Database initialized successfully");
         db.close();
         }
     }
 
-    const cmdStr = 'CREATE TABLE Users (UserID INTEGER PRIMARY KEY, Eng TEXT, Cn TEXT, Shown INT, Correct INT)';
+    const cmdStr = 'CREATE TABLE IF NOT EXISTS Users (UserID INTEGER PRIMARY KEY, Eng TEXT, Cn TEXT, Shown INT, Correct INT)';
+
     db.run(cmdStr, tableCreationCallback);
 }
 
@@ -100,9 +101,15 @@ function storeEC(eng, cn) {
         db.close();
         }
     }
-    db.open(dbFileName); //does not work.
+    let db = new sqlite3.Database(dbFileName); //open the database.
     const cmdStr = 'INSERT INTO Users (Eng, Cn, Shown, Correct) VALUES (@0,@1,0,0)';
     db.run(cmdStr, eng, cn, insertionCallback);
+}
+
+// print database
+function dumpDB() {
+    db.all ( 'SELECT * FROM flashcards', dataCallback);
+    function dataCallback( err, data ) {console.log(data)}
 }
 
 // This handler takes in the translation query and makes the API Request.
@@ -126,7 +133,7 @@ function storeHandler(req, res, next) {
     console.log(Obj);
     if ((Obj.english != undefined) && (Obj.chinese != undefined)) {
         storeEC(Obj.english, Obj.chinese);
-        res.send("Data stored successfully in the database.");
+        res.send("Data successfully stored into the database.");
     }
     else {
         console.log("I don't understand this query, next query please!");
