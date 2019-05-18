@@ -86,7 +86,7 @@ function initDBTable() {
         }
     }
 
-    const cmdStr = 'CREATE TABLE IF NOT EXISTS Users (UserID INTEGER PRIMARY KEY, Eng TEXT, Cn TEXT, Shown INT, Correct INT)';
+    const cmdStr = 'CREATE TABLE IF NOT EXISTS Users (EntryID INTEGER PRIMARY KEY, Eng TEXT, Cn TEXT, Shown INT, Correct INT)';
 
     db.run(cmdStr, tableCreationCallback);
 }
