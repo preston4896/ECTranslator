@@ -7,12 +7,14 @@
 
 - Server can now handle translate query and return output to the HTML page.
 
-#### Current Agenda
-
 - Set up database.
 
 - Database should only contains 5 columns. There are: user, English, Traditional Chinese, # of Seens and # of Corrects.
 
-#### Next Agenda
+#### Current Agenda
 
 - UI design with React.
+
+#### Next Agenda
+
+- Done with Part 1. Wait for Part 2. :)
