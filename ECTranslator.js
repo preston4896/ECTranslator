@@ -21,13 +21,14 @@ function makeAjaxRequest(id, input1, input2) {
         break;
 
         case 'store':
-            console.log(url);
             url += '&chinese=' + input2;
+            console.log(url);
             xhr.open('GET', url, true);
             xhr.onload = function() {
                 alert("Data successfully stored into the database.");
             }
         break;
+
         default:
             xhr.onerror = function() {
                 alert('Woops, there was an error making the request.');
