@@ -13,8 +13,14 @@
 
 #### Current Agenda
 
-- UI design with React.
+- UI design with React, and support rendering for multiple page.
 
 #### Next Agenda
 
-- Done with Part 1. Wait for Part 2. :)
+- Database should include user first, last name, Google ID (unique primary key).
+
+- Add code to support Google Account authentication.
+
+- Make sure cards are only visible to the correct user.
+
+- Redirection. New users land on create cards view; otherwise to the card table (database) view.
