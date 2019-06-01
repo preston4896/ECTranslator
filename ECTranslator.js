@@ -17,6 +17,9 @@ function makeAjaxRequest(id, input1, input2) {
                 document.getElementById('output').style.display = "block";
                 document.getElementById('output').textContent = object.ChineseTraditional;
                 console.log("Chinese output is " + object.ChineseTraditional);
+
+                // enable save button.
+                document.getElementById('store').disabled = false;
             }
         break;
 
@@ -26,6 +29,9 @@ function makeAjaxRequest(id, input1, input2) {
             xhr.open('GET', url, true);
             xhr.onload = function() {
                 alert("Data successfully stored into the database.");
+
+                // diable button. Only needs to be saved once.
+                document.getElementById('store').disabled = true;
             }
         break;
 
@@ -57,3 +63,6 @@ document.getElementById('store').addEventListener('click', function() {
 
 // do not show output when page just loaded.
 document.getElementById('output').style.display = "none";
+
+// disable save button.
+document.getElementById('store').disabled = true;
