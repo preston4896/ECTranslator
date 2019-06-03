@@ -11,9 +11,15 @@
 
 - Database should only contains 5 columns. There are: user, English, Traditional Chinese, # of Seens and # of Corrects.
 
+- Card Creation Page is now built with React.
+
 #### Current Agenda
 
-- UI design with React, and support rendering for multiple page.
+- Create login and database pages.
+
+- React rendering for multiple page.
+
+- CSS Designs.
 
 #### Next Agenda
 

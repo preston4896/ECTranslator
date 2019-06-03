@@ -32,24 +32,9 @@ export function makeAjaxRequest(id, input1, input2, callback) {
     xhr.send(); // sends the request to the server.
 }
 
-// // hit "enter" to translate.
-// document.getElementById('textfield').addEventListener('keypress', function(e) {
-//     let key = e.which || e.keyCode;
-//     if (key === 13) {
-//         let input = document.getElementById('textfield').value;
-//         makeAjaxRequest('translate',input);
-//     }
-// });
-
 // // click on save to run insertion query.
 // document.getElementById('store').addEventListener('click', function() {
 //     let en = document.getElementById('textfield').value;
 //     let cn = document.getElementById('output').textContent;
 //     makeAjaxRequest('store',en,cn);
 // });
-
-// // do not show output when page just loaded.
-// document.getElementById('output').style.display = "none";
-
-// // disable save button.
-// document.getElementById('store').disabled = true;
