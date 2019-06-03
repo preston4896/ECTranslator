@@ -31,10 +31,3 @@ export function makeAjaxRequest(id, input1, input2, callback) {
 
     xhr.send(); // sends the request to the server.
 }
-
-// // click on save to run insertion query.
-// document.getElementById('store').addEventListener('click', function() {
-//     let en = document.getElementById('textfield').value;
-//     let cn = document.getElementById('output').textContent;
-//     makeAjaxRequest('store',en,cn);
-// });
