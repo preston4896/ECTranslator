@@ -13,11 +13,11 @@
 
 - Card Creation Page is now built with React.
 
+- React rendering for multiple page.
+
 #### Current Agenda
 
 - Create login and database pages.
-
-- React rendering for multiple page.
 
 - CSS Designs.
 
