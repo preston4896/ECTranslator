@@ -19,7 +19,7 @@ export function makeAjaxRequest(id, input1, input2, callback) {
             console.log(url);
             xhr.open('GET', url, true);
             xhr.onload = function() {
-                alert("Data successfully stored into the database.");
+                alert(input1 + " <-> " + input2 + " has been successfully stored into the database.");
             }
         break;
 

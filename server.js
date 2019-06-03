@@ -108,8 +108,10 @@ function storeEC(eng, cn) {
 
 // print database
 function dumpDB() {
+    let db = new sqlite3.Database(dbFileName); //open the database.
     db.all ( 'SELECT * FROM flashcards', dataCallback);
     function dataCallback( err, data ) {console.log(data)}
+    db.close();
 }
 
 // This handler takes in the translation query and makes the API Request.
@@ -157,3 +159,6 @@ app.get('/store', storeHandler); // store query handler.
 app.use( fileNotFound );            // otherwise not found
 app.listen(port, function (){console.log('Listening...');} );
 initDBTable();
+
+// Node.js does not support ES6 Syntax
+exports.dumpDB = dumpDB;
