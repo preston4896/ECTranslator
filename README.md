@@ -23,9 +23,9 @@
 
 - CSS Designs.
 
-#### Next Agenda
-
 - Database should include user first, last name, Google ID (unique primary key).
+
+#### Next Agenda
 
 - Add code to support Google Account authentication.
 
