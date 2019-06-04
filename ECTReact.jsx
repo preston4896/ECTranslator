@@ -42,7 +42,6 @@ class MainComponent extends React.Component {
             page: 'creation' 
         }
         updateMainState = updateMainState.bind(this);
-        this.printAjaxHandler = this.printAjaxHandler.bind(this);
     }
 
     render() {
@@ -53,28 +52,14 @@ class MainComponent extends React.Component {
         }
 
         else if (this.state.page == 'review') {
-
-            // sends AJAX request to the server to fetch database.
-            makeAjaxRequest('print', null, null, this.printAjaxHandler);
-
-            return ( 
-                <div>
-                    <p> Check console to see database output. </p>
-                    <button onClick = {updateMainState}> Back </button>
-                </div>
+            return (
+                <ReviewCardMain/>
             );
         }
 
         else return (
             <p> Error 404: Page not found. </p>
         );
-    }
-
-    printAjaxHandler(response) {
-        let object = JSON.parse(response);
-        let dbString = JSON.stringify(object);
-        console.log("Database object: ");
-        console.log(dbString);
     }
 }
 
@@ -94,7 +79,7 @@ function OutText(props) {
 	    return <p>Text missing</p>;
 	    }
 	else return (
-        <textarea id = 'output' rows = '25' cols = '50' value = {props.phrase} placeholder = 'Translation goes here.'/>
+        <textarea id = 'output' rows = '25' cols = '50' value = {props.phrase} placeholder = 'Translation goes here.' disabled/>
      );
 }
 
@@ -150,15 +135,24 @@ class CreateCardMain extends React.Component {
 
     // method - to listen for enter key to begin translation.
     checkReturn(event) {
+        let engInput = document.getElementById('textfield').value;
+        this.setState({input: engInput});
+
         if (event.charCode == 13) {
-            let engInput = document.getElementById('textfield').value;
-            this.setState({input: engInput});
+            // blank check...
+            console.log("Enter key hit, checking state...");
+            console.log(this.state.input);
+            if (this.state.input == '') {
+                alert("Please insert English text.");
+            }
 
-            // AJAX request
-            makeAjaxRequest('translate',engInput, null, this.translateAjaxHandler);
+            else {
+                // AJAX request
+                makeAjaxRequest('translate',engInput, null, this.translateAjaxHandler);
 
-            // enable save button.
-            this.setState({buttonDisabledState: false});
+                // enable save button.
+                this.setState({buttonDisabledState: false});
+            }
         }
     }
 
@@ -173,7 +167,37 @@ class CreateCardMain extends React.Component {
     }
 }
 
-// TODO: Card Database/Review Children Components.
+// Card Database/Review Children Components.
+class ReviewCardMain extends React.Component {
+    constructor(props) {
+        super(props);
+        this.printAjaxHandler = this.printAjaxHandler.bind(this);
+    }
+
+    render() {
+        // sends AJAX request to the server to fetch database.
+        makeAjaxRequest('print', null, null, this.printAjaxHandler);
+
+        return ( 
+            <main>
+                <p> Check console to see database output. </p>
+                <button onClick = {updateMainState}> Back </button>
+            </main>
+        );
+    }
+
+    printAjaxHandler(response) {
+        let object = JSON.parse(response);
+
+        // debug
+        let dbString = JSON.stringify(object);
+        console.log("Database object: ");
+        console.log(dbString);
+
+        // code
+
+    }
+}
 
 ReactDOM.render(
     <MainComponent/>,
