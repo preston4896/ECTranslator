@@ -14,7 +14,7 @@ function updateMainState() {
     if (this.state.page == 'creation') {
         // checks save before rendering review page
         if (document.getElementById('save').disabled == false) {
-            if (confirm("You have not saved data into the database. Continue anyway?")) {
+            if (confirm("You have not saved this data into the database. Continue anyway?")) {
                 this.setState({page: 'review'});
             }
 
@@ -83,17 +83,6 @@ function OutText(props) {
      );
 }
 
-// Buttons component
-function CCbutton(props) {
-    return (
-        <div>
-            <button onClick = {props.oc}  id = {props.id} disabled = {props.disabled}>
-                {props.buttonName}
-            </button>
-        </div>
-    );
-}
-
 // The main component for the card creation page.
 class CreateCardMain extends React.Component {
     // state initializes here - default input and output text.
@@ -114,8 +103,14 @@ class CreateCardMain extends React.Component {
             <main>
                 <CCheader/>
                 <p> Hit Enter/Return Key to translate.</p>
-                <CCbutton oc = {this.store} buttonName = "Save" id = 'save' disabled = {this.state.buttonDisabledState}/>
-                <CCbutton oc = {updateMainState} buttonName = "Review" id = 'review' disabled = {false}/>
+                <div>
+                    <button onClick = {this.store} id = 'save' disabled = {this.state.buttonDisabledState}>
+                        Save
+                    </button>
+                    <button onClick = {updateMainState} id = 'review' disabled = {false}>
+                        Review
+                    </button>
+                </div>
                 <textarea id = 'textfield' rows = '25' cols = '50' onKeyPress = {this.checkReturn} placeholder = 'Input goes here.'/>
                 <OutText phrase = {this.state.output}/>
             </main>
@@ -132,7 +127,7 @@ class CreateCardMain extends React.Component {
         
         // blank check
         if (chOutput == '') {
-            alert("Please insert English text for translation.");
+            alert("Please insert valid English text for translation.");
             this.setState({buttonDisabledState: true});
             this.setState({output: chOutput});
         }
@@ -169,10 +164,39 @@ class CreateCardMain extends React.Component {
 }
 
 // Card Database/Review Children Components.
+
+function Rheader() {
+    return (
+        <header>
+            <h1> Let's Review Chinese! </h1>
+        </header>
+    );
+}
+
+function TextBox(props) {
+    if (props.text == undefined) {
+        return (
+            <p> Error loading database. </p>
+        );
+    }
+
+    else {
+        return (
+            <div>
+                <textarea id = 'chinese' rows = '25' cols = '100' value = {props.text} disabled />
+            </div>
+        );
+    }
+}
+
 class ReviewCardMain extends React.Component {
     constructor(props) {
         super(props);
         this.printAjaxHandler = this.printAjaxHandler.bind(this);
+        this.state = {
+            cn: 'Chinese goes here.',
+            en: ''
+        }
     }
 
     render() {
@@ -181,7 +205,13 @@ class ReviewCardMain extends React.Component {
 
         return ( 
             <main>
-                <p> Check console to see database output. </p>
+                <Rheader/>
+                <h2> Translate the following words in English. </h2>
+                <p> Hit Enter/Return Key after inserting your answer in the textfield. </p>
+                <TextBox text = {this.state.cn}/>
+                <div>
+                    <input id = 'english' type = 'text' size = '100' placeholder = 'Input English here' required/>
+                </div>
                 <button onClick = {updateMainState}> Back </button>
             </main>
         );
@@ -189,11 +219,6 @@ class ReviewCardMain extends React.Component {
 
     printAjaxHandler(response) {
         let object = JSON.parse(response);
-
-        // debug
-        let dbString = JSON.stringify(object);
-        console.log("Database object: ");
-        console.log(dbString);
 
         // TODO: add code
 
