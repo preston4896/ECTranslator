@@ -107,11 +107,20 @@ function storeEC(eng, cn) {
 }
 
 // print database
-function dumpDB() {
+function printDB(resInput) {
+    function dataCallback( err, data ) {
+        if (err) {
+            console.log("Error printing data...");
+            resInput.send("Error printing data...");
+        }
+        else {
+            console.log("Database is being printed out succesfully.");
+            resInput.send(data);
+            db.close();
+        }
+    }
     let db = new sqlite3.Database(dbFileName); //open the database.
-    db.all ( 'SELECT * FROM flashcards', dataCallback);
-    function dataCallback( err, data ) {console.log(data)}
-    db.close();
+    db.all ( 'SELECT * FROM Users', dataCallback);
 }
 
 // This handler takes in the translation query and makes the API Request.
@@ -143,6 +152,11 @@ function storeHandler(req, res, next) {
     }
 }
 
+// This handler returns the database as JSON.
+function printHandler(req, res) {
+    printDB(res);
+}
+
 // Returns a 404 error if the HTML file requested can not be found and all queires are invalid.
 function fileNotFound(req, res) {
     let url = req.url;
@@ -156,9 +170,7 @@ const app = express()
 app.use(express.static('public'));  // can I find a static file in the public sub-directory? 
 app.get('/translate', translateHandler );   // if not, is it a valid query for translation?
 app.get('/store', storeHandler); // store query handler.
+app.get('/print', printHandler); // print database handler.
 app.use( fileNotFound );            // otherwise not found
 app.listen(port, function (){console.log('Listening...');} );
 initDBTable();
-
-// Node.js does not support ES6 Syntax
-exports.dumpDB = dumpDB;
