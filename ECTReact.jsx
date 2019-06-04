@@ -129,8 +129,21 @@ class CreateCardMain extends React.Component {
         let chOutput;
         // output translation
         chOutput = object.ChineseTraditional;
-        console.log("Chinese output is " + chOutput);
-        this.setState({output: chOutput});
+        
+        // blank check
+        if (chOutput == '') {
+            alert("Please insert English text for translation.");
+            this.setState({buttonDisabledState: true});
+            this.setState({output: chOutput});
+        }
+
+        else {
+            console.log("Chinese output is " + chOutput);
+            this.setState({output: chOutput});
+
+            // enable save button.
+            this.setState({buttonDisabledState: false});
+        }
     }
 
     // method - to listen for enter key to begin translation.
@@ -139,20 +152,8 @@ class CreateCardMain extends React.Component {
         this.setState({input: engInput});
 
         if (event.charCode == 13) {
-            // blank check...
-            console.log("Enter key hit, checking state...");
-            console.log(this.state.input);
-            if (this.state.input == '') {
-                alert("Please insert English text.");
-            }
-
-            else {
-                // AJAX request
-                makeAjaxRequest('translate',engInput, null, this.translateAjaxHandler);
-
-                // enable save button.
-                this.setState({buttonDisabledState: false});
-            }
+            // AJAX request
+            makeAjaxRequest('translate',engInput, null, this.translateAjaxHandler);
         }
     }
 
@@ -194,7 +195,7 @@ class ReviewCardMain extends React.Component {
         console.log("Database object: ");
         console.log(dbString);
 
-        // code
+        // TODO: add code
 
     }
 }
