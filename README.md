@@ -15,11 +15,11 @@
 
 - React rendering for multiple page.
 
+- Send a request to server to fetch database (received from client-side).
+
 #### Current Agenda
 
 - Create login and database pages.
-
-- Send a request to server to get database printed on browser. (priority #1)
 
 - CSS Designs.
 
