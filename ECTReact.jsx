@@ -5,7 +5,6 @@
 "strict mode";
 
 import { makeAjaxRequest } from './ECTAjax.js'; // ES6 Syntax
-// import { dumpDB } from '../server.js';
 
 // Main Componnets - used for condition rendering between Card Creation and Card Database pages.
 
@@ -43,6 +42,7 @@ class MainComponent extends React.Component {
             page: 'creation' 
         }
         updateMainState = updateMainState.bind(this);
+        this.printAjaxHandler = this.printAjaxHandler.bind(this);
     }
 
     render() {
@@ -53,7 +53,10 @@ class MainComponent extends React.Component {
         }
 
         else if (this.state.page == 'review') {
-            // dumpDB();
+
+            // sends AJAX request to the server to fetch database.
+            makeAjaxRequest('print', null, null, this.printAjaxHandler);
+
             return ( 
                 <div>
                     <p> Check console to see database output. </p>
@@ -65,6 +68,13 @@ class MainComponent extends React.Component {
         else return (
             <p> Error 404: Page not found. </p>
         );
+    }
+
+    printAjaxHandler(response) {
+        let object = JSON.parse(response);
+        let dbString = JSON.stringify(object);
+        console.log("Database object: ");
+        console.log(dbString);
     }
 }
 
@@ -92,7 +102,7 @@ function OutText(props) {
 function CCbutton(props) {
     return (
         <div>
-            <button onClick = {props.oc}  id = {props.id}>
+            <button onClick = {props.oc}  id = {props.id} disabled = {props.disabled}>
                 {props.buttonName}
             </button>
         </div>
@@ -106,10 +116,11 @@ class CreateCardMain extends React.Component {
         super(props);
         this.state = {
             output: '',
-            input: ''
+            input: '',
+            buttonDisabledState: true
         }
         this.checkReturn = this.checkReturn.bind(this);
-        this.ajaxHandler = this.ajaxHandler.bind(this);
+        this.translateAjaxHandler = this.translateAjaxHandler.bind(this);
         this.store = this.store.bind(this);
     }
 
@@ -118,8 +129,8 @@ class CreateCardMain extends React.Component {
             <main>
                 <CCheader/>
                 <p> Hit Enter/Return Key to translate.</p>
-                <CCbutton oc = {this.store} buttonName = "Save" id = 'save'/>
-                <CCbutton oc = {updateMainState} buttonName = "Review" id = 'review'/>
+                <CCbutton oc = {this.store} buttonName = "Save" id = 'save' disabled = {this.state.buttonDisabledState}/>
+                <CCbutton oc = {updateMainState} buttonName = "Review" id = 'review' disabled = {false}/>
                 <textarea id = 'textfield' rows = '25' cols = '50' onKeyPress = {this.checkReturn} placeholder = 'Input goes here.'/>
                 <OutText phrase = {this.state.output}/>
             </main>
@@ -127,7 +138,7 @@ class CreateCardMain extends React.Component {
     }
 
     // AJAX callback function
-    ajaxHandler(response) {
+    translateAjaxHandler(response) {
         // parse JSON
         let object = JSON.parse(response);
         let chOutput;
@@ -144,10 +155,10 @@ class CreateCardMain extends React.Component {
             this.setState({input: engInput});
 
             // AJAX request
-            makeAjaxRequest('translate',engInput, null, this.ajaxHandler);
+            makeAjaxRequest('translate',engInput, null, this.translateAjaxHandler);
 
             // enable save button.
-            document.getElementById('save').disabled = false;
+            this.setState({buttonDisabledState: false});
         }
     }
 
@@ -158,7 +169,7 @@ class CreateCardMain extends React.Component {
         makeAjaxRequest('store',en,cn, null);
 
         // only save once.
-        document.getElementById('save').disabled = true;
+        this.setState({buttonDisabledState: true});
     }
 }
 
@@ -168,8 +179,3 @@ ReactDOM.render(
     <MainComponent/>,
     document.getElementById('root')
 );
-
-// JS Script to modify DOM after rendering.
-
-// disable save button by default.
-document.getElementById('save').disabled = true;
