@@ -165,10 +165,10 @@ class CreateCardMain extends React.Component {
 
 // Card Database/Review Children Components.
 
-function Rheader() {
+function Rheader(props) {
     return (
         <header>
-            <h1> Let's Review Chinese! </h1>
+            <h1> {props.greeting} </h1>
         </header>
     );
 }
@@ -195,7 +195,7 @@ class ReviewCardMain extends React.Component {
         this.printAjaxHandler = this.printAjaxHandler.bind(this);
         this.state = {
             cn: 'Chinese goes here.',
-            en: ''
+            saved: true
         }
     }
 
@@ -203,25 +203,39 @@ class ReviewCardMain extends React.Component {
         // sends AJAX request to the server to fetch database.
         makeAjaxRequest('print', null, null, this.printAjaxHandler);
 
-        return ( 
-            <main>
-                <Rheader/>
-                <h2> Translate the following words in English. </h2>
-                <p> Hit Enter/Return Key after inserting your answer in the textfield. </p>
-                <TextBox text = {this.state.cn}/>
-                <div>
-                    <input id = 'english' type = 'text' size = '100' placeholder = 'Input English here' required/>
-                </div>
-                <button onClick = {updateMainState}> Back </button>
-            </main>
-        );
+        if (!this.state.saved) {
+            return (
+                <main>
+                    <Rheader greeting = "Uh-oh! Looks like your database is empty. Go back and hit save after translating more words."/>
+                    <button onClick = {updateMainState}> Back </button>
+                </main>
+            );
+        }
+
+        else {
+            return ( 
+                <main>
+                    <Rheader greeting = "Let's Review Chinese!"/>
+                    <h2> Translate the following words in English. </h2>
+                    <p> Hit Enter/Return Key after inserting your answer in the textfield. </p>
+                    <TextBox text = {this.state.cn}/>
+                    <div>
+                        <input id = 'english' type = 'text' size = '100' placeholder = 'Input English here' required/>
+                    </div>
+                    <button onClick = {updateMainState}> Back </button>
+                </main>
+            );
+        }
     }
 
     printAjaxHandler(response) {
-        let object = JSON.parse(response);
-
-        // TODO: add code
-
+        let dataEntries = JSON.parse(response);
+        if (dataEntries === undefined || dataEntries.length == 0) {
+            this.setState({saved: false});
+        }
+        else {
+            //TODO: add code.
+        }
     }
 }
 
