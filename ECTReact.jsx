@@ -27,6 +27,9 @@ function updateMainState() {
 
     else if (this.state.page == 'login') {
         // assume all users gets redirected to card creation page after logging in for now.
+
+        //TODO: More code needed after Google Login API is set up.
+        //TODO: Determine whether users land on creation or review pages.
         this.setState({isLoggedIn: true});
         this.setState({page: 'creation'}); 
     }
@@ -120,9 +123,8 @@ class Login extends React.Component {
     }
 
     login() {
+        //TODO: Redirect users to the Google login page. Might need to send request to the server.
         updateMainState();
-
-        //TODO: More code needed after Google Login API is set up.
     }
 }
 
@@ -159,7 +161,6 @@ function OutText(props) {
 
 // The main component for the card creation page.
 class CreateCardMain extends React.Component {
-    // state initializes here - default input and output text.
     constructor(props) {
         super(props);
         this.state = {
@@ -306,8 +307,9 @@ class ReviewCardMain extends React.Component {
             return (
                 <div>
                     <main>
-                        <Rheader greeting = "Uh-oh! Looks like your database is empty. Go back and hit save after translating more words."/>
-                        <button onClick = {updateMainState}> Back </button>
+                        <Rheader greeting = "Uh-oh! Looks like your database is empty."/>
+                        <p> Go back and start translating words. </p>
+                        <button onClick = {updateMainState}> Add Words </button>
                     </main>
                     <LogoutButton/>
                 </div>
@@ -328,7 +330,7 @@ class ReviewCardMain extends React.Component {
                         </div>
                         <Message message = {this.state.message} style = {{display: this.state.showMessage ? 'block': 'none'}} id = 'message'/>
                         <button onClick = {this.checkAnswer} id = 'next'> Next </button> 
-                        <button onClick = {updateMainState}> Back </button>
+                        <button onClick = {updateMainState}> Add Words </button>
                     </main>
                     <LogoutButton/>
                 </div>
@@ -336,6 +338,7 @@ class ReviewCardMain extends React.Component {
         }
     }
 
+    // memory leak - fix might needed.
     printAjaxHandler(response) {
         let dataEntries = JSON.parse(response);
         if (dataEntries === undefined || dataEntries.length == 0) {
@@ -373,7 +376,7 @@ class ReviewCardMain extends React.Component {
             i++ ; // index increment.
 
             let s = this.state.score;
-            s++ ; // correct increment.
+            s++ ; // correct increment. - TODO: Needs to be changed later.
 
             this.setState({showMessage: false});
             this.setState({index: i});
