@@ -23,11 +23,13 @@
 
 - CSS Designs.
 
-- Database should include user first, last name, Google ID (unique primary key).
+- Modify "Seen" and "Correct" counts in the database.
 
 #### Next Agenda
 
 - Add code to support Google Account authentication.
+
+- Database should include user first, last name, Google ID (unique primary key).
 
 - Make sure cards are only visible to the correct user.
 
