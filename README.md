@@ -17,9 +17,11 @@
 
 - Send a request to server to fetch database (received from client-side).
 
+- Review Page is functional.
+
 #### Current Agenda
 
-- Create login and database pages.
+- Link login page to creation page for now. Later, it is determined to whether land on creation or review, based on new vs returning users.
 
 - CSS Designs.
 
