@@ -4,7 +4,7 @@
 
 "strict mode";
 
-import { makeAjaxRequest } from './ECTAjax.js'; // ES6 Syntax
+import { makeAjaxRequest } from './ECTAjax.js';
 
 // Main Componnets - used for condition rendering between Card Creation and Card Database pages.
 
@@ -19,17 +19,23 @@ function updateMainState() {
             }
 
             else {
-                // do nothing.
+                return;
             }
         }
-
-        else {
-            this.setState({page: 'review'});
-        }
+        this.setState({page: 'review'});
     }
 
     // goes back to creation
     else {
+        console.log("1. Current Page State is: " + this.state.page);
+        if ((document.body.contains(document.getElementById('next'))) && (document.getElementById('next').disabled != true)) {
+            if (confirm("You have not completed your review session. Exiting this page will lose your progress. Continue anyway?")) {
+                this.setState({page: 'creation'});
+            }
+            else {
+                return;
+            }
+        }
         this.setState({page: 'creation'});
     }
 }
@@ -189,13 +195,34 @@ function TextBox(props) {
     }
 }
 
+function Message(props) {
+    if (props.message == undefined) {
+        return (
+            <p> undefined message. </p>
+        );
+    }
+    else {
+        return (
+            <div style = {props.style}>
+                <p id = 'message'> {props.message} </p>
+            </div>
+        )
+    }
+}
+
 class ReviewCardMain extends React.Component {
     constructor(props) {
         super(props);
         this.printAjaxHandler = this.printAjaxHandler.bind(this);
+        this.loadCnText = this.loadCnText.bind(this);
+        this.checkAnswer = this.checkAnswer.bind(this);
         this.state = {
             cn: 'Chinese goes here.',
-            saved: true
+            saved: true,
+            data: [],
+            index: 0,
+            message: 'Message goes here.',
+            showMessage: false
         }
     }
 
@@ -217,11 +244,13 @@ class ReviewCardMain extends React.Component {
                 <main>
                     <Rheader greeting = "Let's Review Chinese!"/>
                     <h2> Translate the following words in English. </h2>
-                    <p> Hit Enter/Return Key after inserting your answer in the textfield. </p>
+                    <p> Click on Next after inserting your answer in the textfield. </p>
                     <TextBox text = {this.state.cn}/>
                     <div>
                         <input id = 'english' type = 'text' size = '100' placeholder = 'Input English here' required/>
                     </div>
+                    <Message message = {this.state.message} style = {{display: this.state.showMessage ? 'block': 'none'}}/>
+                    <button onClick = {this.checkAnswer} id = 'next'> Next </button> 
                     <button onClick = {updateMainState}> Back </button>
                 </main>
             );
@@ -234,7 +263,40 @@ class ReviewCardMain extends React.Component {
             this.setState({saved: false});
         }
         else {
-            //TODO: add code.
+            this.setState({data: dataEntries});
+            this.loadCnText(); // load the content now.
+        }
+    }
+
+    // call this function to load Chinese text into the textbox.
+    loadCnText() {
+        if (this.state.data[this.state.index] != undefined) {
+            this.state.cn = this.state.data[this.state.index].Cn;
+        }
+
+        else {
+            this.state.cn = "Congratulations! You are done.";
+            document.getElementById('next').disabled = true;
+            document.getElementById('english').style.display = 'none';
+        }
+    }
+
+    // call this function after user clicked on the next button
+    checkAnswer() {
+        this.setState({showMessage: true});
+        let answer = document.getElementById('english').value;
+        if (answer != this.state.data[this.state.index].Eng) {
+            this.setState({message: 'Answer is incorrect.'});
+        }
+
+        else {
+            let i = this.state.index;
+            i++ ; // index increment.
+            // this.setState({message: 'Answer is correct. Click Next to continue.'});
+            this.setState({showMessage: false});
+            this.setState({index: i});
+            this.loadCnText();
+            document.getElementById('english').value = ''; // clear input.
         }
     }
 }
