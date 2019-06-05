@@ -178,7 +178,7 @@ class CreateCardMain extends React.Component {
             <div>
                 <main>
                     <CCheader/>
-                    <p> Hit Enter/Return Key to translate.</p>
+                    <h2> Hit Enter/Return Key to translate.</h2>
                     <div>
                         <button onClick = {this.store} id = 'save' disabled = {this.state.buttonDisabledState}>
                             Save
@@ -308,7 +308,7 @@ class ReviewCardMain extends React.Component {
                 <div>
                     <main>
                         <Rheader greeting = "Uh-oh! Looks like your database is empty."/>
-                        <p> Go back and start translating words. </p>
+                        <h2> Go back and start translating words. </h2>
                         <button onClick = {updateMainState}> Add Words </button>
                     </main>
                     <LogoutButton/>
