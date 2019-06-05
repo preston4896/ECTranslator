@@ -8,7 +8,7 @@ import { makeAjaxRequest } from './ECTAjax.js';
 
 // Main Componnets - used for condition rendering between Card Creation and Card Database pages.
 
-// global function to update the state of Main Component.
+// global function - to update the state of Main Component.
 function updateMainState() {
     // switching from creation to review.
     if (this.state.page == 'creation') {
@@ -25,9 +25,14 @@ function updateMainState() {
         this.setState({page: 'review'});
     }
 
+    else if (this.state.page == 'login') {
+        // assume all users gets redirected to card creation page after logging in for now.
+        this.setState({isLoggedIn: true});
+        this.setState({page: 'creation'}); 
+    }
+
     // goes back to creation
     else {
-        console.log("1. Current Page State is: " + this.state.page);
         if ((document.body.contains(document.getElementById('next'))) && (document.getElementById('next').disabled != true)) {
             if (confirm("You have not completed your review session. Exiting this page will lose your progress. Continue anyway?")) {
                 this.setState({page: 'creation'});
@@ -40,14 +45,23 @@ function updateMainState() {
     }
 }
 
+// global function - to log users out.
+function logout() {
+    //TODO: More code needed after Google Login API is set up.
+
+    this.setState({isLoggedIn: false});
+    this.setState({page: 'login'}); 
+}
+
 class MainComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            // assume all users land on card creation page for now.
-            page: 'creation' 
+            page: 'login' ,
+            isLoggedIn: false
         }
         updateMainState = updateMainState.bind(this);
+        logout = logout.bind(this);
     }
 
     render() {
@@ -63,10 +77,64 @@ class MainComponent extends React.Component {
             );
         }
 
+        else if (this.state.page == 'login') {
+            return (
+                <Login/>
+            );
+        }
+
         else return (
             <p> Error 404: Page not found. </p>
         );
     }
+}
+
+// Login Page Components
+class Login extends React.Component {
+    constructor(props) {
+        super(props);
+        this.login = this.login.bind(this);
+    }
+
+    render() {
+        return (
+			<div id="wrapper">
+                <section class="intro">
+                    <header>
+                    </header>
+                </section>
+
+            <section id="first">
+                <header>
+                    <h1>Welcome to ECTranslator!</h1>
+                    <h2>Customize your vocabulary</h2>
+                </header>
+                <div class="content">
+                    <script src="https://apis.google.com/js/platform.js" async defer></script>
+                    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+                    <img src="assets/btn_google_signin_dark_normal_web@2x.png" alt="" onClick = {this.login}/>
+                </div>
+            </section>
+			</div>
+        );
+    }
+
+    login() {
+        updateMainState();
+
+        //TODO: More code needed after Google Login API is set up.
+    }
+}
+
+// Logout Components
+function LogoutButton() {
+    return (
+        <footer>
+            <button id = 'logout' onClick = {logout}>
+                Log Out
+            </button>
+        </footer>
+    )
 }
 
 // Card Creation Children Components
@@ -85,7 +153,7 @@ function OutText(props) {
 	    return <p>Text missing</p>;
 	    }
 	else return (
-        <textarea id = 'output' rows = '25' cols = '50' value = {props.phrase} placeholder = 'Translation goes here.' disabled/>
+        <textarea id = 'output' value = {props.phrase} placeholder = 'Translation goes here.' disabled/>
      );
 }
 
@@ -106,20 +174,23 @@ class CreateCardMain extends React.Component {
 
     render() {
         return (
-            <main>
-                <CCheader/>
-                <p> Hit Enter/Return Key to translate.</p>
-                <div>
-                    <button onClick = {this.store} id = 'save' disabled = {this.state.buttonDisabledState}>
-                        Save
-                    </button>
-                    <button onClick = {updateMainState} id = 'review' disabled = {false}>
-                        Review
-                    </button>
-                </div>
-                <textarea id = 'textfield' rows = '25' cols = '50' onKeyPress = {this.checkReturn} placeholder = 'Input goes here.'/>
-                <OutText phrase = {this.state.output}/>
-            </main>
+            <div>
+                <main>
+                    <CCheader/>
+                    <p> Hit Enter/Return Key to translate.</p>
+                    <div>
+                        <button onClick = {this.store} id = 'save' disabled = {this.state.buttonDisabledState}>
+                            Save
+                        </button>
+                        <button onClick = {updateMainState} id = 'review' disabled = {false}>
+                            Review
+                        </button>
+                    </div>
+                    <textarea id = 'textfield' onKeyPress = {this.checkReturn} placeholder = 'Input goes here.'/>
+                    <OutText phrase = {this.state.output}/>
+                </main>
+                <LogoutButton/>
+            </div>
         );
     }
 
@@ -223,7 +294,7 @@ class ReviewCardMain extends React.Component {
             index: 0,
             message: 'Message goes here.',
             showMessage: false,
-            correct: 0
+            score: 0
         }
     }
 
@@ -233,28 +304,34 @@ class ReviewCardMain extends React.Component {
 
         if (!this.state.saved) {
             return (
-                <main>
-                    <Rheader greeting = "Uh-oh! Looks like your database is empty. Go back and hit save after translating more words."/>
-                    <button onClick = {updateMainState}> Back </button>
-                </main>
+                <div>
+                    <main>
+                        <Rheader greeting = "Uh-oh! Looks like your database is empty. Go back and hit save after translating more words."/>
+                        <button onClick = {updateMainState}> Back </button>
+                    </main>
+                    <LogoutButton/>
+                </div>
             );
         }
 
         else {
             return ( 
-                <main>
-                    <Rheader greeting = "Let's Review Chinese!"/>
-                    <h2> Translate the following words in English. </h2>
-                    <p> Click on Next after inserting your answer in the textfield. </p>
-                    <Message message = {"# of Corrects: " + this.state.correct} id = 'score' />
-                    <TextBox text = {this.state.cn}/>
-                    <div>
-                        <input id = 'english' type = 'text' size = '100' placeholder = 'Input English here' required/>
-                    </div>
-                    <Message message = {this.state.message} style = {{display: this.state.showMessage ? 'block': 'none'}} id = 'message'/>
-                    <button onClick = {this.checkAnswer} id = 'next'> Next </button> 
-                    <button onClick = {updateMainState}> Back </button>
-                </main>
+                <div>
+                    <main>
+                        <Rheader greeting = "Let's Review Chinese!"/>
+                        <h2> Translate the following words in English. </h2>
+                        <p> Click on Next after inserting your answer in the textfield. </p>
+                        <Message message = {"Score: " + this.state.score} id = 'score' />
+                        <TextBox text = {this.state.cn}/>
+                        <div>
+                            <input id = 'english' type = 'text' placeholder = 'Input English here' required/>
+                        </div>
+                        <Message message = {this.state.message} style = {{display: this.state.showMessage ? 'block': 'none'}} id = 'message'/>
+                        <button onClick = {this.checkAnswer} id = 'next'> Next </button> 
+                        <button onClick = {updateMainState}> Back </button>
+                    </main>
+                    <LogoutButton/>
+                </div>
             );
         }
     }
@@ -295,14 +372,12 @@ class ReviewCardMain extends React.Component {
             let i = this.state.index;
             i++ ; // index increment.
 
-            let c = this.state.correct;
-            c++ ; // correct increment.
-
-            // this.setState({message: 'Answer is correct. Click Next to continue.'});
+            let s = this.state.score;
+            s++ ; // correct increment.
 
             this.setState({showMessage: false});
             this.setState({index: i});
-            this.setState({correct: c});
+            this.setState({score: s});
             this.loadCnText();
             document.getElementById('english').value = ''; // clear input.
         }
