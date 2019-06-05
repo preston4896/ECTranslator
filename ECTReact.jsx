@@ -204,7 +204,7 @@ function Message(props) {
     else {
         return (
             <div style = {props.style}>
-                <p id = 'message'> {props.message} </p>
+                <p id = {props.id}> {props.message} </p>
             </div>
         )
     }
@@ -222,7 +222,8 @@ class ReviewCardMain extends React.Component {
             data: [],
             index: 0,
             message: 'Message goes here.',
-            showMessage: false
+            showMessage: false,
+            correct: 0
         }
     }
 
@@ -245,11 +246,12 @@ class ReviewCardMain extends React.Component {
                     <Rheader greeting = "Let's Review Chinese!"/>
                     <h2> Translate the following words in English. </h2>
                     <p> Click on Next after inserting your answer in the textfield. </p>
+                    <Message message = {"# of Corrects: " + this.state.correct} id = 'score' />
                     <TextBox text = {this.state.cn}/>
                     <div>
                         <input id = 'english' type = 'text' size = '100' placeholder = 'Input English here' required/>
                     </div>
-                    <Message message = {this.state.message} style = {{display: this.state.showMessage ? 'block': 'none'}}/>
+                    <Message message = {this.state.message} style = {{display: this.state.showMessage ? 'block': 'none'}} id = 'message'/>
                     <button onClick = {this.checkAnswer} id = 'next'> Next </button> 
                     <button onClick = {updateMainState}> Back </button>
                 </main>
@@ -292,9 +294,15 @@ class ReviewCardMain extends React.Component {
         else {
             let i = this.state.index;
             i++ ; // index increment.
+
+            let c = this.state.correct;
+            c++ ; // correct increment.
+
             // this.setState({message: 'Answer is correct. Click Next to continue.'});
+
             this.setState({showMessage: false});
             this.setState({index: i});
+            this.setState({correct: c});
             this.loadCnText();
             document.getElementById('english').value = ''; // clear input.
         }
