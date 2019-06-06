@@ -56,20 +56,20 @@ This query prints out the entire database. You must be logged in to access this 
 
 - Link login page to creation page.
 
+- Add code to support Google Account (OAuth2) authentication.
+
 #### Current Agenda
 
 - CSS Designs.
 
 - Modify "Seen" and "Correct" counts in the database. (High Priority)
 
-- Add code to support Google Account authentication. (High Priority)
-
-#### Next Agenda
-
 - Login page needs to determine whether to redirect to creation or review page, based on new vs returning users.
 
 - Database should include user first, last name, Google ID (unique primary key).
 
 - Make sure cards are only visible to the correct user.
+
+#### Next Agenda
 
 - Consider using React Production Build by mini-fying `ECTReact.js` for faster page rendering.
