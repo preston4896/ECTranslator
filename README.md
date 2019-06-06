@@ -62,6 +62,8 @@ This query prints out the entire database. You must be logged in to access this 
 
 - CSS Designs.
 
+- Fixed Memory Leak while rendering Review page. (Moderate Priority)
+
 - Modify "Seen" and "Correct" counts in the database. (High Priority)
 
 - Login page needs to determine whether to redirect to creation or review page, based on new vs returning users.
