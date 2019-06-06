@@ -38,7 +38,7 @@ This query prints out the entire database. You must be logged in to access this 
 
 #### Progress Log
 
-- Set up Google Cloud and acquired Google Translate API Key: AIzaSyATOeTMHkeAzNdg0PJ7zp0xCZqOpBo_Ebs
+- Set up Google Cloud and acquired Google Translate API Key.
 
 - Server can now handle translate query and return output to the HTML page.
 
