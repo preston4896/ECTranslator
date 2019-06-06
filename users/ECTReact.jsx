@@ -144,6 +144,8 @@ class CreateCardMain extends React.Component {
 
     // AJAX callback function
     translateAjaxHandler(response) {
+        console.log("TranslateAJAX responded.");
+
         // parse JSON
         let object = JSON.parse(response);
         let chOutput;
@@ -173,6 +175,7 @@ class CreateCardMain extends React.Component {
 
         if (event.charCode == 13) {
             // AJAX request
+            console.log("Sending TranslateAJAX...");
             makeAjaxRequest('translate',engInput, null, this.translateAjaxHandler);
         }
     }
@@ -237,7 +240,7 @@ class ReviewCardMain extends React.Component {
         this.checkAnswer = this.checkAnswer.bind(this);
         this.state = {
             cn: 'Chinese goes here.',
-            saved: true,
+            saved: false,
             data: [],
             index: 0,
             message: 'Message goes here.',
@@ -289,7 +292,7 @@ class ReviewCardMain extends React.Component {
     printAjaxHandler(response) {
         let dataEntries = JSON.parse(response);
         if (dataEntries === undefined || dataEntries.length == 0) {
-            this.setState({saved: false});
+            // remains false, do not re-render.
         }
         else {
             this.setState({data: dataEntries});

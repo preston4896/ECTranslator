@@ -181,7 +181,7 @@ function fileNotFound(req, res) {
 
 // print url from incoming HTTP requests.
 function printURL (req, res, next) {
-    console.log(req.url);
+    console.log("server echoes url: "+req.url);
     next();
 }
 
@@ -189,7 +189,9 @@ function printURL (req, res, next) {
 function isAuthenticated(req, res, next) {
     if (req.user) {
 	console.log("Req.session:",req.session);
-	console.log("Req.user:",req.user);
+    console.log("Req.user:",req.user);
+    // // load db here.
+    // initDBTable();
 	next();
     } else {
 	res.redirect('/ECTlogin.html');  // send response telling
@@ -276,8 +278,6 @@ app.get('/auth/redirect',
 passport.authenticate('google'),
 function (req, res) {
     console.log('Logged in and using cookies!')
-    // load db here.
-    initDBTable();
     res.redirect('/users/ECTranslator.html');
 });
 
@@ -287,9 +287,9 @@ isAuthenticated,
 express.static('.'));
 
 // API queries.
-app.get('/translate', translateHandler );   // translate.
-app.get('/store', storeHandler); // store query handler.
-app.get('/print', printHandler); // print database handler.
+app.get('/users/translate', translateHandler );   // translate.
+app.get('/users/store', storeHandler); // store query handler.
+app.get('/users/print', printHandler); // print database handler.
 
 // logout - invalidate the cookie.
 
