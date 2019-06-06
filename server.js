@@ -5,9 +5,23 @@ const port = 53754;
 
 // Initialize database.
 const sqlite3 = require("sqlite3").verbose();
-const fs = require("fs");
 const dbFileName = "ECUsers.db";
 const db = new sqlite3.Database(dbFileName);
+
+// Google Authentication Modules
+const cookieSession = require('cookie-session');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20');
+
+// OAuth2 API Access Identification
+const googleLoginData = {
+    clientID: '104738630252-kq2m40914op28f5c0c921hha33ns6ae6.apps.googleusercontent.com',
+    clientSecret: 'ya09fkMWgVlqI-gtSVpYV9fg',
+    callbackURL: '/auth/redirect'
+};
+
+// store login information
+passport.use(new GoogleStrategy(googleLoginData, gotProfile));
 
 // The API request functions that allows our server to commmunicate directly with Google Cloud.
 function talkToGoogle(input, resInput) {
@@ -165,24 +179,123 @@ function fileNotFound(req, res) {
     res.send('Cannot find '+url);
 }
 
-// put together the server pipeline
-const app = express()
-
-// echos url for debugging
-app.use('/', printURL);
-
-app.use(express.static('users'));  // can I find a static file in the public sub-directory? 
-app.get('/translate', translateHandler );   // if not, is it a valid query for translation?
-app.get('/store', storeHandler); // store query handler.
-app.get('/print', printHandler); // print database handler.
-app.use( fileNotFound );            // otherwise not found
-app.listen(port, function (){console.log('Listening...');} );
-initDBTable();
-
-// middleware functions
-
 // print url from incoming HTTP requests.
 function printURL (req, res, next) {
     console.log(req.url);
     next();
 }
+
+// function check whether users are logged in.
+function isAuthenticated(req, res, next) {
+    if (req.user) {
+	console.log("Req.session:",req.session);
+	console.log("Req.user:",req.user);
+	next();
+    } else {
+	res.redirect('/ECTlogin.html');  // send response telling
+	// Browser to go to login page
+    }
+}
+
+// Passport code that I do not understand.
+// --------------------------------------
+
+// Some functions Passport calls, that we can use to specialize.
+// This is where we get to write our own code, not just boilerplate. 
+// The callback "done" at the end of each one resumes Passport's
+// internal process. 
+
+// function called during login, the second time passport.authenticate
+// is called (in /auth/redirect/),
+// once we actually have the profile data from Google. 
+function gotProfile(accessToken, refreshToken, profile, done) {
+    console.log("Google profile",profile);
+    // here is a good place to check if user is in DB,
+    // and to store him in DB if not already there. 
+    // Second arg to "done" will be passed into serializeUser,
+    // should be key to get user out of database.
+
+    let dbRowID = 1;  // temporary! Should be the real unique
+    // key for db Row for this user in DB table.
+    // Note: cannot be zero, has to be something that evaluates to
+    // True.  
+
+    done(null, dbRowID); 
+}
+
+// Part of Server's sesssion set-up.  
+// The second operand of "done" becomes the input to deserializeUser
+// on every subsequent HTTP request with this session's cookie. 
+passport.serializeUser((dbRowID, done) => {
+    console.log("SerializeUser. Input is",dbRowID);
+    done(null, dbRowID);
+});
+
+// Called by passport.session pipeline stage on every HTTP request with
+// a current session cookie. 
+// Where we should lookup user database info. 
+// Whatever we pass in the "done" callback becomes req.user
+// and can be used by subsequent middleware.
+passport.deserializeUser((dbRowID, done) => {
+    console.log("deserializeUser. Input is:", dbRowID);
+    // here is a good place to look up user data in database using
+    // dbRowID. Put whatever you want into an object. It ends up
+    // as the property "user" of the "req" object. 
+    let userData = {userData: "data from db row goes here"};
+    done(null, userData);
+});
+
+// --------------------------------------
+// put together the server pipeline
+const app = express()
+
+// echo url for debugging
+app.use('/', printURL);
+
+// begin checking for cookies to see if user is already logged in
+app.use(cookieSession({
+    maxAge: 1 * 1000 * 60 * 30, // 30 mins
+    keys: ['willBeRandomizedLater']
+}));
+
+// Initializes request object for further handling by passport
+app.use(passport.initialize()); 
+
+// If there is a valid cookie, will call deserializeUser() - attaches user information to req.
+app.use(passport.session()); 
+
+// public static file. - if users are not logged in.
+app.use(express.static('public'));
+
+// The server redirects user to Google's login page here -- beginning the login process.
+app.get('/auth/google', 
+passport.authenticate('google',{ scope: ['profile'] }));
+
+// After successfully logged in, call this function.
+app.get('/auth/redirect',
+passport.authenticate('google'),
+function (req, res) {
+    console.log('Logged in and using cookies!')
+    // load db here.
+    initDBTable();
+    res.redirect('/users/ECTranslator.html');
+});
+
+// static file - for logged in users only.
+app.get('/users/*',
+isAuthenticated,
+express.static('.'));
+
+// API queries.
+app.get('/translate', translateHandler );   // translate.
+app.get('/store', storeHandler); // store query handler.
+app.get('/print', printHandler); // print database handler.
+
+// logout - invalidate the cookie.
+
+
+//404 error for invalid URL
+app.use( fileNotFound );
+
+//Pipeline done.
+app.listen(port, function (){console.log('Listening...');} );

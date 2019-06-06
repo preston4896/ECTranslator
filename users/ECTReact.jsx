@@ -25,15 +25,6 @@ function updateMainState() {
         this.setState({page: 'review'});
     }
 
-    else if (this.state.page == 'login') {
-        // assume all users gets redirected to card creation page after logging in for now.
-
-        //TODO: More code needed after Google Login API is set up.
-        //TODO: Determine whether users land on creation or review pages.
-        this.setState({isLoggedIn: true});
-        this.setState({page: 'creation'}); 
-    }
-
     // goes back to creation
     else {
         if ((document.body.contains(document.getElementById('next'))) && (document.getElementById('next').disabled != true)) {
@@ -50,18 +41,17 @@ function updateMainState() {
 
 // global function - to log users out.
 function logout() {
-    //TODO: More code needed after Google Login API is set up.
-
     this.setState({isLoggedIn: false});
-    this.setState({page: 'login'}); 
+    //TODO: More code needed after Google Login API is set up.
+    console.log("TODO: logout code.");
 }
 
 class MainComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            page: 'login' ,
-            isLoggedIn: false
+            page: 'creation' ,
+            isLoggedIn: true
         }
         updateMainState = updateMainState.bind(this);
         logout = logout.bind(this);
@@ -79,52 +69,9 @@ class MainComponent extends React.Component {
                 <ReviewCardMain/>
             );
         }
-
-        else if (this.state.page == 'login') {
-            return (
-                <Login/>
-            );
-        }
-
         else return (
             <p> Error 404: Page not found. </p>
         );
-    }
-}
-
-// Login Page Components
-class Login extends React.Component {
-    constructor(props) {
-        super(props);
-        this.login = this.login.bind(this);
-    }
-
-    render() {
-        return (
-			<div id="wrapper">
-                <section class="intro">
-                    <header>
-                    </header>
-                </section>
-
-            <section id="first">
-                <header>
-                    <h1>Welcome to ECTranslator!</h1>
-                    <h2>Customize your vocabulary</h2>
-                </header>
-                <div class="content">
-                    <script src="https://apis.google.com/js/platform.js" async defer></script>
-                    <div class="g-signin2" data-onsuccess="onSignIn"></div>
-                    <img src="assets/btn_google_signin_dark_normal_web@2x.png" alt="" onClick = {this.login}/>
-                </div>
-            </section>
-			</div>
-        );
-    }
-
-    login() {
-        //TODO: Redirect users to the Google login page. Might need to send request to the server.
-        updateMainState();
     }
 }
 
@@ -300,7 +247,7 @@ class ReviewCardMain extends React.Component {
     }
 
     render() {
-        // sends AJAX request to the server to fetch database.
+        // sends AJAX request to the server to fetch database - memory leak - should only be called once.
         makeAjaxRequest('print', null, null, this.printAjaxHandler);
 
         if (!this.state.saved) {
