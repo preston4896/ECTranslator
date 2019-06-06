@@ -64,7 +64,7 @@ This query prints out the entire database. Insert:
 
 - CSS Designs.
 
-- Fix Memory Leak while rendering Review page. (Moderate Priority)
+- Fix Memory Leak while rendering Review page. (Priority #1)
 
 - Modify "Seen" and "Correct" counts in the database. (High Priority)
 

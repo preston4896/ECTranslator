@@ -190,13 +190,27 @@ function isAuthenticated(req, res, next) {
     if (req.user) {
 	console.log("Req.session:",req.session);
     console.log("Req.user:",req.user);
-    // // load db here.
-    // initDBTable();
 	next();
     } else {
 	res.redirect('/ECTlogin.html');  // send response telling
 	// Browser to go to login page
     }
+}
+
+// process logging out.
+function logoutHandler(req, res) {
+    // req.session.destroy(function (err) {
+    //     if (err) {
+    //         console.log("Error logging out.");
+    //         return next(err);
+    //     }
+    //     // redirect users to login page.
+    //     res.redirect('/ECTlogin.html'); 
+    // });
+    console.log("Attempt to destroy: ", req.session);
+    req.user = null;
+    req.session = null;
+    res.redirect('/ECTlogin.html'); 
 }
 
 // Passport code that I do not understand.
@@ -292,10 +306,13 @@ app.get('/users/store', storeHandler); // store query handler.
 app.get('/users/print', printHandler); // print database handler.
 
 // logout - invalidate the cookie.
-
+app.get('/users/logout', logoutHandler);
 
 //404 error for invalid URL
 app.use( fileNotFound );
 
 //Pipeline done.
 app.listen(port, function (){console.log('Listening...');} );
+
+// load db here.
+initDBTable();

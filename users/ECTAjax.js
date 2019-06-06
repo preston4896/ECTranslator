@@ -32,6 +32,11 @@ export function makeAjaxRequest(id, input1, input2, callback) {
             };
         break;
 
+        case 'logout':
+            console.log(url);
+            xhr.open('GET', url, true);
+        break;
+
         default:
             xhr.onerror = function() {
                 alert('Woops, there was an error making the request.');

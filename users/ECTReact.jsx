@@ -41,9 +41,9 @@ function updateMainState() {
 
 // global function - to log users out.
 function logout() {
+    this.setState({page: 'logout'});
     this.setState({isLoggedIn: false});
-    //TODO: More code needed after Google Login API is set up.
-    console.log("TODO: logout code.");
+    makeAjaxRequest('logout');
 }
 
 class MainComponent extends React.Component {
@@ -69,6 +69,13 @@ class MainComponent extends React.Component {
                 <ReviewCardMain/>
             );
         }
+
+        else if (this.state.page == 'logout') {
+            return (
+                <p> You are logged out. Please refresh this page. </p>
+            );
+        }
+
         else return (
             <p> Error 404: Page not found. </p>
         );
@@ -211,7 +218,7 @@ function TextBox(props) {
     else {
         return (
             <div>
-                <textarea id = 'chinese' rows = '25' cols = '100' value = {props.text} disabled />
+                <textarea id = 'chinese' value = {props.text} disabled />
             </div>
         );
     }
