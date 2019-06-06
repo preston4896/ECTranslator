@@ -30,7 +30,7 @@ You can manually store data into the database by inserting this query. However, 
 
 #### Print API
 
-This query prints out the entire database. You must be logged in to access this query. Insert:
+This query prints out the entire database. Insert:
 
 `/print`
 
@@ -62,7 +62,7 @@ This query prints out the entire database. You must be logged in to access this 
 
 - CSS Designs.
 
-- Fixed Memory Leak while rendering Review page. (Moderate Priority)
+- Fix Memory Leak while rendering Review page. (Moderate Priority)
 
 - Modify "Seen" and "Correct" counts in the database. (High Priority)
 
