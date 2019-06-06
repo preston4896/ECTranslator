@@ -12,11 +12,11 @@ To launch the website, go to the browser and enter http://server162.site:53754/E
 
 Users may insert API query into the URL address to receive data in JSON format.
 
-To insert a query, add a slash after the port number, then enter the appropriate query key word for the specific data.
+To insert a query, add a slash after the `users` directory in the URL, then enter the appropriate query key word for the specific data.
 
 For example:
 
-`server162.site:53754/` query begins here
+`server162.site:53754/users/` query begins here
 
 #### Translate API
 
