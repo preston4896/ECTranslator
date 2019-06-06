@@ -4,13 +4,15 @@
 
 If the web site is not live, run `NodeJS` on the server. Otherwise if you do not have access to the server, please contact us.
 
-To launch the website, go to the browser and enter http://server162.site:53754/ECTranslator.html.
+To launch the website, go to the browser and enter http://server162.site:53754/ECTlogin.html.
 
 ## API queries
 
-You may insert API query into the URL address to receive data in JSON format.
+#### NOTE: Users must sign in to Google to query APIs.
 
-To insert a query, add a backslash after the port number, then enter the appropriate query key word for the specific data.
+Users may insert API query into the URL address to receive data in JSON format.
+
+To insert a query, add a slash after the port number, then enter the appropriate query key word for the specific data.
 
 For example:
 
@@ -24,7 +26,7 @@ To get the translate data, enter:
 
 #### Store API
 
-You can manually store data into the database by inserting this query. However, you will have to also manually insert the Chinese output into the URL address. For example:
+Users can manually store data into the database by inserting this query. However, users will have to also manually insert the Chinese output into the URL address. For example:
 
 `/store?english= ` English word goes here `&chinese= ` Chinese word goes here
 
