@@ -167,7 +167,7 @@ function fileNotFound(req, res) {
 
 // put together the server pipeline
 const app = express()
-app.use(express.static('public'));  // can I find a static file in the public sub-directory? 
+app.use(express.static('users'));  // can I find a static file in the public sub-directory? 
 app.get('/translate', translateHandler );   // if not, is it a valid query for translation?
 app.get('/store', storeHandler); // store query handler.
 app.get('/print', printHandler); // print database handler.
