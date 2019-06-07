@@ -56,15 +56,15 @@ This query prints out the entire database. Insert:
 
 - Review Page is functional.
 
-- Link login page to creation page.
+- Linked login page to creation page.
 
-- Add code to support Google Account (OAuth2) authentication.
+- Added code to support Google Account (OAuth2) authentication.
+
+- Fixed Memory Leak while rendering Review Page.
 
 #### Current Agenda
 
 - CSS Designs.
-
-- Fix Memory Leak while rendering Review page. (Priority #1)
 
 - Modify "Seen" and "Correct" counts in the database. (High Priority)
 
