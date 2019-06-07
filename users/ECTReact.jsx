@@ -1,6 +1,7 @@
 // Reminder: JSX MUST BE COMPILED BEFORE RUNNING NODE.JS ON SERVER.
 // To compile, enter command: npx babel ECTReact.jsx --presets react-app/prod > ECTReact.js
 // Auto-compile (any .jsx files in the src directory) command: npx babel --watch src --out-dir . --presets react-app/prod&
+// minify js: npx terser -c -m -o ECTReact.min.js -- ECTReact.js
 
 "strict mode";
 
@@ -41,9 +42,24 @@ function updateMainState() {
 
 // global function - to log users out.
 function logout() {
+    document.getElementById('info').style.display = 'none';
     this.setState({page: 'logout'});
     this.setState({isLoggedIn: false});
     makeAjaxRequest('logout');
+}
+
+// Logout Components
+function UserInfo(props) {
+    return (
+        <footer id = 'info'>
+            <p>
+                You are now logging in as {props.user}.
+            </p>
+            <button id = 'logout' onClick = {logout}>
+                Log Out
+            </button>
+        </footer>
+    )
 }
 
 class MainComponent extends React.Component {
@@ -51,7 +67,8 @@ class MainComponent extends React.Component {
         super(props);
         this.state = {
             page: 'creation' ,
-            isLoggedIn: true
+            isLoggedIn: true,
+            userName: 'First Last'
         }
         updateMainState = updateMainState.bind(this);
         logout = logout.bind(this);
@@ -60,13 +77,19 @@ class MainComponent extends React.Component {
     render() {
         if (this.state.page == 'creation') {
             return (
-                <CreateCardMain/>
+                <main>
+                    <CreateCardMain/>
+                    <UserInfo user = {this.state.userName}/>
+                </main>
             );
         }
 
         else if (this.state.page == 'review') {
             return (
-                <ReviewCardMain/>
+                <main>
+                    <ReviewCardMain/>
+                    <UserInfo user = {this.state.userName}/>
+                </main>
             );
         }
 
@@ -80,17 +103,6 @@ class MainComponent extends React.Component {
             <p> Error 404: Page not found. </p>
         );
     }
-}
-
-// Logout Components
-function LogoutButton() {
-    return (
-        <footer>
-            <button id = 'logout' onClick = {logout}>
-                Log Out
-            </button>
-        </footer>
-    )
 }
 
 // Card Creation Children Components
@@ -130,21 +142,18 @@ class CreateCardMain extends React.Component {
     render() {
         return (
             <div>
-                <main>
-                    <CCheader/>
-                    <h2> Hit Enter/Return Key to translate.</h2>
-                    <div>
-                        <button onClick = {this.store} id = 'save' disabled = {this.state.buttonDisabledState}>
-                            Save
-                        </button>
-                        <button onClick = {updateMainState} id = 'review' disabled = {false}>
-                            Review
-                        </button>
-                    </div>
-                    <textarea id = 'textfield' onKeyPress = {this.checkReturn} placeholder = 'Input goes here.'/>
-                    <OutText phrase = {this.state.output}/>
-                </main>
-                <LogoutButton/>
+                <CCheader/>
+                <h2> Hit Enter/Return Key to translate.</h2>
+                <div>
+                    <button onClick = {this.store} id = 'save' disabled = {this.state.buttonDisabledState}>
+                        Save
+                    </button>
+                    <button onClick = {updateMainState} id = 'review' disabled = {false}>
+                        Review
+                    </button>
+                </div>
+                <textarea id = 'textfield' onKeyPress = {this.checkReturn} placeholder = 'Input goes here.'/>
+                <OutText phrase = {this.state.output}/>
             </div>
         );
     }
@@ -278,12 +287,9 @@ class ReviewCardMain extends React.Component {
         if (!this.state.saved) {
             return (
                 <div>
-                    <main>
-                        <Rheader greeting = "Uh-oh! Looks like your database is empty."/>
-                        <h2> Go back and start translating words. </h2>
-                        <button onClick = {updateMainState}> Add Words </button>
-                    </main>
-                    <LogoutButton/>
+                    <Rheader greeting = "Uh-oh! Looks like your database is empty."/>
+                    <h2> Go back and start translating words. </h2>
+                    <button onClick = {updateMainState}> Add Words </button>
                 </div>
             );
         }
@@ -293,20 +299,17 @@ class ReviewCardMain extends React.Component {
             console.log("new cn: " + this.state.cn);
             return (
                 <div>
-                    <main>
-                        <Rheader greeting = "Let's Review Chinese!"/>
-                        <h2> Translate the following words in English. </h2>
-                        <p> Click on Next after inserting your answer in the textfield. </p>
-                        <Message message = {"Score: " + this.state.score} id = 'score' />
-                        <TextBox text = {this.state.cn}/>
-                        <div>
-                            <input id = 'english' type = 'text' placeholder = 'Input English here' disabled = {this.state.nextDisabled}/>
-                        </div>
-                        <Message message = {this.state.message} style = {{display: this.state.showMessage ? 'block': 'none'}} id = 'message'/>
-                        <button onClick = {this.checkAnswer} id = 'next' disabled = {this.state.nextDisabled}> Next </button> 
-                        <button onClick = {updateMainState}> Add Words </button>
-                    </main>
-                    <LogoutButton/>
+                    <Rheader greeting = "Let's Review Chinese!"/>
+                    <h2> Translate the following words in English. </h2>
+                    <p> Click on Next after inserting your answer in the textfield. </p>
+                    <Message message = {"Score: " + this.state.score} id = 'score' />
+                    <TextBox text = {this.state.cn}/>
+                    <div>
+                        <input id = 'english' type = 'text' placeholder = 'Input English here' disabled = {this.state.nextDisabled}/>
+                    </div>
+                    <Message message = {this.state.message} style = {{display: this.state.showMessage ? 'block': 'none'}} id = 'message'/>
+                    <button onClick = {this.checkAnswer} id = 'next' disabled = {this.state.nextDisabled}> Next </button> 
+                    <button onClick = {updateMainState}> Add Words </button>
                 </div>
             );
         }
