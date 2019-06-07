@@ -247,19 +247,33 @@ class ReviewCardMain extends React.Component {
         this.checkAnswer = this.checkAnswer.bind(this);
         this.state = {
             cn: 'Chinese goes here.',
+            en: '',
             saved: false,
             data: [],
             index: 0,
             message: 'Message goes here.',
             showMessage: false,
-            score: 0
+            score: 0,
+            nextDisabled: false
+        }
+    }
+
+    // make the request before the DOM is loaded.
+    componentDidMount() {
+        // sends AJAX request to the server to fetch database
+        makeAjaxRequest('print', null, null, this.printAjaxHandler);
+    }
+
+    // render() is called first before making the AJAX request so we have to reload the DOM.
+    componentDidUpdate(prevProps) {
+        if (this.props.data !== prevProps.data) {
+            console.log("Update invoked!");
+            this.loadCnText(); // load the content now.
+            console.log("Chinese is: " + this.state.cn);
         }
     }
 
     render() {
-        // sends AJAX request to the server to fetch database - memory leak - should only be called once.
-        makeAjaxRequest('print', null, null, this.printAjaxHandler);
-
         if (!this.state.saved) {
             return (
                 <div>
@@ -274,7 +288,9 @@ class ReviewCardMain extends React.Component {
         }
 
         else {
-            return ( 
+            console.log('returned data after rendering: ', this.state.data);
+
+            return (
                 <div>
                     <main>
                         <Rheader greeting = "Let's Review Chinese!"/>
@@ -283,10 +299,10 @@ class ReviewCardMain extends React.Component {
                         <Message message = {"Score: " + this.state.score} id = 'score' />
                         <TextBox text = {this.state.cn}/>
                         <div>
-                            <input id = 'english' type = 'text' placeholder = 'Input English here' required/>
+                            <input id = 'english' type = 'text' placeholder = 'Input English here' disabled = {this.state.nextDisabled}/>
                         </div>
                         <Message message = {this.state.message} style = {{display: this.state.showMessage ? 'block': 'none'}} id = 'message'/>
-                        <button onClick = {this.checkAnswer} id = 'next'> Next </button> 
+                        <button onClick = {this.checkAnswer} id = 'next' disabled = {this.state.nextDisabled}> Next </button> 
                         <button onClick = {updateMainState}> Add Words </button>
                     </main>
                     <LogoutButton/>
@@ -295,15 +311,15 @@ class ReviewCardMain extends React.Component {
         }
     }
 
-    // memory leak - fix might needed.
     printAjaxHandler(response) {
         let dataEntries = JSON.parse(response);
         if (dataEntries === undefined || dataEntries.length == 0) {
-            // remains false, do not re-render.
+            this.setState({saved: false});
         }
         else {
+            // store the data.
+            this.setState({saved: true});
             this.setState({data: dataEntries});
-            this.loadCnText(); // load the content now.
         }
     }
 
@@ -315,16 +331,15 @@ class ReviewCardMain extends React.Component {
 
         else {
             this.state.cn = "Congratulations! You are done.";
-            document.getElementById('next').disabled = true;
-            document.getElementById('english').style.display = 'none';
+            this.setState({nextDisabled: true});
         }
     }
 
     // call this function after user clicked on the next button
     checkAnswer() {
-        this.setState({showMessage: true});
         let answer = document.getElementById('english').value;
         if (answer != this.state.data[this.state.index].Eng) {
+            this.setState({showMessage: true});
             this.setState({message: 'Answer is incorrect.'});
         }
 
@@ -335,11 +350,9 @@ class ReviewCardMain extends React.Component {
             let s = this.state.score;
             s++ ; // correct increment. - TODO: Needs to be changed later.
 
-            this.setState({showMessage: false});
             this.setState({index: i});
             this.setState({score: s});
             this.loadCnText();
-            document.getElementById('english').value = ''; // clear input.
         }
     }
 }
