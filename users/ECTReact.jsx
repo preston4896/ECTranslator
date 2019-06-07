@@ -265,11 +265,12 @@ class ReviewCardMain extends React.Component {
     }
 
     // render() is called first before making the AJAX request so we have to reload the DOM.
-    componentDidUpdate(prevProps) {
-        if (this.props.data !== prevProps.data) {
-            console.log("Update invoked!");
+    componentDidUpdate(prevProps, prevState) {
+        if ((this.state.index !== prevState.index)||(this.state.data !== prevState.data)) {
             this.loadCnText(); // load the content now.
-            console.log("Chinese is: " + this.state.cn);
+            if (this.state.data[this.state.index] != undefined) {
+                this.setState({en: this.state.data[this.state.index].Eng});
+            }
         }
     }
 
@@ -288,8 +289,8 @@ class ReviewCardMain extends React.Component {
         }
 
         else {
-            console.log('returned data after rendering: ', this.state.data);
-
+            console.log("rendering...");
+            console.log("new cn: " + this.state.cn);
             return (
                 <div>
                     <main>
@@ -319,18 +320,22 @@ class ReviewCardMain extends React.Component {
         else {
             // store the data.
             this.setState({saved: true});
-            this.setState({data: dataEntries});
+            console.log("receiving data");
+            this.setState({data: dataEntries}); //calls render() right away
         }
     }
 
     // call this function to load Chinese text into the textbox.
     loadCnText() {
+
         if (this.state.data[this.state.index] != undefined) {
-            this.state.cn = this.state.data[this.state.index].Cn;
+            console.log("loading cn...");
+            this.setState({cn: this.state.data[this.state.index].Cn});
         }
 
         else {
-            this.state.cn = "Congratulations! You are done.";
+            this.setState({cn: "Congratulations! You are done"});
+            document.getElementById('english').value = "";
             this.setState({nextDisabled: true});
         }
     }
@@ -338,7 +343,9 @@ class ReviewCardMain extends React.Component {
     // call this function after user clicked on the next button
     checkAnswer() {
         let answer = document.getElementById('english').value;
-        if (answer != this.state.data[this.state.index].Eng) {
+        document.getElementById('english').value = "";
+
+        if (answer != this.state.en) {
             this.setState({showMessage: true});
             this.setState({message: 'Answer is incorrect.'});
         }
@@ -352,7 +359,6 @@ class ReviewCardMain extends React.Component {
 
             this.setState({index: i});
             this.setState({score: s});
-            this.loadCnText();
         }
     }
 }
