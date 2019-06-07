@@ -62,18 +62,16 @@ This query prints out the entire database. Insert:
 
 - Fixed Memory Leak while rendering Review Page.
 
-#### Current Agenda
+- The app is currently using React Production Build with minified `ECTReact.min.js` for faster page rendering.
+
+#### Future Improvement(s) To Be Made:
 
 - CSS Designs.
 
-- Modify "Seen" and "Correct" counts in the database. (High Priority)
+- Modify "Seen" and "Correct" counts in the database.
 
 - Login page needs to determine whether to redirect to creation or review page, based on new vs returning users.
 
 - Database should include user first, last name, Google ID (unique primary key).
 
 - Make sure cards are only visible to the correct user.
-
-#### Next Agenda
-
-- Consider using React Production Build by mini-fying `ECTReact.js` for faster page rendering.
