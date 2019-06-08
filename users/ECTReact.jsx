@@ -354,6 +354,7 @@ class ReviewCardMain extends React.Component {
         }
 
         else {
+            this.setState({showMessage: false});
             let i = this.state.index;
             i++ ; // index increment.
 

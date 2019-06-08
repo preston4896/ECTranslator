@@ -2,7 +2,7 @@
 
 ## Instruction To Use:
 
-If the web site is not live, run `NodeJS` on the server. Otherwise if you do not have access to the server, please contact us.
+If the web site is not live, run `$ node server.js` on the server command line. Otherwise if you do not have access to the server, please contact us.
 
 To launch the website, go to the browser and enter http://server162.site:53754/ECTlogin.html.
 
