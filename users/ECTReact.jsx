@@ -72,6 +72,18 @@ class MainComponent extends React.Component {
         }
         updateMainState = updateMainState.bind(this);
         logout = logout.bind(this);
+        this.printUserHandler = this.printUserHandler.bind(this);
+    }
+
+    // make the request before the DOM is loaded.
+    componentDidMount() {
+        // sends AJAX request to the server to fetch user info
+        makeAjaxRequest('info', null, null, this.printUserHandler);
+    }
+
+    printUserHandler(response) {
+        let user = JSON.parse(response);
+        this.setState({userName: user.Name});
     }
 
     render() {
@@ -198,7 +210,8 @@ class CreateCardMain extends React.Component {
 
     // method - store into database.
     store() {
-        let en = this.state.input;
+        let enInput = this.state.input;
+        let en = enInput.toLowerCase();
         let cn = this.state.output;
         makeAjaxRequest('store',en,cn, null);
 
@@ -301,7 +314,7 @@ class ReviewCardMain extends React.Component {
                 <div>
                     <Rheader greeting = "Let's Review Chinese!"/>
                     <h2> Translate the following words in English. </h2>
-                    <p> Click on Next after inserting your answer in the textfield. </p>
+                    <p id = 'nextText'> Click on Next after inserting your answer (all lowercase) in the textfield. </p>
                     <Message message = {"Score: " + this.state.score} id = 'score' />
                     <TextBox text = {this.state.cn}/>
                     <div>
@@ -337,8 +350,9 @@ class ReviewCardMain extends React.Component {
         }
 
         else {
-            this.setState({cn: "Congratulations! You are done"});
+            this.setState({cn: "Congratulations! You are done."});
             document.getElementById('english').value = "";
+            document.getElementById('nextText').style.display = 'none';
             this.setState({nextDisabled: true});
         }
     }

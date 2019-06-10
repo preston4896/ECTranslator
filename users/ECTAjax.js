@@ -37,6 +37,14 @@ export function makeAjaxRequest(id, input1, input2, callback) {
             xhr.open('GET', url, true);
         break;
 
+        case 'info':
+            console.log(url);
+            xhr.open('GET', url, true);
+            xhr.onload = function() {
+                callback(xhr.responseText);
+            };
+        break;
+
         default:
             xhr.onerror = function() {
                 alert('Woops, there was an error making the request.');

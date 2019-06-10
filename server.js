@@ -5,8 +5,7 @@ const port = 53754;
 
 // Initialize database.
 const sqlite3 = require("sqlite3").verbose();
-const dbFileName = "ECUsers.db";
-const db = new sqlite3.Database(dbFileName);
+const dbFileName = "ECT.db";
 
 // Google Authentication Modules
 const cookieSession = require('cookie-session');
@@ -90,19 +89,26 @@ function talkToGoogle(input, resInput) {
 }
 
 // Initialize table in our server.
-function initDBTable() {
+function initDB() {
     function tableCreationCallback(err) {
         if (err) {
-        console.log("Table creation error",err);
+        console.log("Init error",err);
         } else {
-        console.log("Database initialized successfully");
-        db.close();
+        console.log("Database Tables initialized successfully");
         }
     }
 
-    const cmdStr = 'CREATE TABLE IF NOT EXISTS Users (EntryID INTEGER PRIMARY KEY, Eng TEXT, Cn TEXT, Shown INT, Correct INT)';
+    const db = new sqlite3.Database(dbFileName);
 
-    db.run(cmdStr, tableCreationCallback);
+    // initialize Google User table
+    const cmdStrUsers = 'CREATE TABLE IF NOT EXISTS Users (UserID INTEGER PRIMARY KEY, FirstName TEXT, LastName, TEXT)';
+
+    // initialize words table
+    const cmdStrWords = 'CREATE TABLE IF NOT EXISTS Words (EntryID INTEGER PRIMARY KEY, GoogleUserID INTEGER, Eng TEXT, Cn TEXT, Shown INT, Correct INT)';
+
+    db.run(cmdStrUsers, tableCreationCallback);
+    db.run(cmdStrWords, tableCreationCallback);
+    db.close();
 }
 
 // Store translation into table in database.
@@ -116,12 +122,12 @@ function storeEC(eng, cn) {
         }
     }
     let db = new sqlite3.Database(dbFileName); //open the database.
-    const cmdStr = 'INSERT INTO Users (Eng, Cn, Shown, Correct) VALUES (@0,@1,0,0)';
+    const cmdStr = 'INSERT INTO Words (Eng, Cn, Shown, Correct) VALUES (@0,@1,0,0)';
     db.run(cmdStr, eng, cn, insertionCallback);
 }
 
 // print database
-function printDB(resInput) {
+function printWords(resInput) {
     function dataCallback( err, data ) {
         if (err) {
             console.log("Error printing data...");
@@ -134,7 +140,7 @@ function printDB(resInput) {
         }
     }
     let db = new sqlite3.Database(dbFileName); //open the database.
-    db.all ( 'SELECT * FROM Users', dataCallback);
+    db.all ( 'SELECT * FROM Words', dataCallback);
 }
 
 // This handler takes in the translation query and makes the API Request.
@@ -167,8 +173,8 @@ function storeHandler(req, res, next) {
 }
 
 // This handler returns the database as JSON.
-function printHandler(req, res) {
-    printDB(res);
+function printWordsHandler(req, res) {
+    printWords(res);
 }
 
 // Returns a 404 error if the HTML file requested can not be found and all queires are invalid.
@@ -199,21 +205,46 @@ function isAuthenticated(req, res, next) {
 
 // process logging out.
 function logoutHandler(req, res) {
-    // req.session.destroy(function (err) {
-    //     if (err) {
-    //         console.log("Error logging out.");
-    //         return next(err);
-    //     }
-    //     // redirect users to login page.
-    //     res.redirect('/ECTlogin.html'); 
-    // });
     console.log("Attempt to destroy: ", req.session);
     req.user = null;
     req.session = null;
     res.redirect('/ECTlogin.html'); 
 }
 
-// Passport code that I do not understand.
+// this function checks if the user exists in the database and returns the userID, otherwise inserts new users into the database.
+// returns -1 if there's an error.
+function getUserID(first, last) {
+    let db = new sqlite3.Database(dbFileName); //open the database.
+    let cmd = 'SELECT UserID FROM Users WHERE FirstName = ' + '"' + first + '"' + ' AND LastName = ' + '"' + last + '"' ;
+    console.log('cmd: ' + cmd);
+    let id = -1;
+    db.get(cmd, function(err, data) {
+        if (err) {
+            console.log("Error locating user.");
+        }
+        else {
+            if (data === undefined) {
+            let insertCMD = 'INSERT INTO Users (FirstName, LastName) VALUES (@0, @1)';
+            db.run(insertCMD, first, last, function (err) {
+                if (err) {
+                    console.log("User insertion error",err);
+                } 
+                else {
+                    console.log("User inserted");
+                }
+            });
+            }
+
+            else {
+                console.log("Existing User output: ", data);
+                id = data.UserID;
+            }
+        }
+        db.close();
+    });
+    return id;
+}
+
 // --------------------------------------
 
 // Some functions Passport calls, that we can use to specialize.
@@ -226,24 +257,26 @@ function logoutHandler(req, res) {
 // once we actually have the profile data from Google. 
 function gotProfile(accessToken, refreshToken, profile, done) {
     console.log("Google profile",profile);
+
     // here is a good place to check if user is in DB,
     // and to store him in DB if not already there. 
     // Second arg to "done" will be passed into serializeUser,
     // should be key to get user out of database.
+    let first = profile.name.givenName;
+    let last = profile.name.familyName;
+    
+    let dbRowID = getUserID(first, last);
 
-    let dbRowID = 1;  // temporary! Should be the real unique
-    // key for db Row for this user in DB table.
-    // Note: cannot be zero, has to be something that evaluates to
-    // True.  
+    console.log("dbRow: " + dbRowID);
 
-    done(null, dbRowID); 
+    done(null, first + ' ' + last); 
 }
 
 // Part of Server's sesssion set-up.  
 // The second operand of "done" becomes the input to deserializeUser
 // on every subsequent HTTP request with this session's cookie. 
 passport.serializeUser((dbRowID, done) => {
-    console.log("SerializeUser. Input is",dbRowID);
+    console.log("SerializeUser. Input is ", dbRowID);
     done(null, dbRowID);
 });
 
@@ -253,11 +286,11 @@ passport.serializeUser((dbRowID, done) => {
 // Whatever we pass in the "done" callback becomes req.user
 // and can be used by subsequent middleware.
 passport.deserializeUser((dbRowID, done) => {
-    console.log("deserializeUser. Input is:", dbRowID);
+    console.log("deserializeUser. Input is ", dbRowID);
     // here is a good place to look up user data in database using
     // dbRowID. Put whatever you want into an object. It ends up
     // as the property "user" of the "req" object. 
-    let userData = {userData: "data from db row goes here"};
+    let userData = {userData: dbRowID};
     done(null, userData);
 });
 
@@ -303,10 +336,21 @@ express.static('.'));
 // API queries.
 app.get('/users/translate', translateHandler );   // translate.
 app.get('/users/store', storeHandler); // store query handler.
-app.get('/users/print', printHandler); // print database handler.
+app.get('/users/print', printWordsHandler); // print database handler.
 
 // logout - invalidate the cookie.
 app.get('/users/logout', logoutHandler);
+
+// user info.
+app.get('/users/info',
+function (req, res) {
+    console.log("loading user info to browser...");
+    res.json(
+        {
+            Name: req.user.userData
+        }
+    )
+})
 
 //404 error for invalid URL
 app.use( fileNotFound );
@@ -315,4 +359,4 @@ app.use( fileNotFound );
 app.listen(port, function (){console.log('Listening...');} );
 
 // load db here.
-initDBTable();
+initDB();
